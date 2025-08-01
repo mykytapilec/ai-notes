@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Note } from './note.entity';
+import { NotesService } from './notes/notes.service';
+import { NotesController } from './notes/notes.controller';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -9,12 +12,17 @@ import { Note } from './note.entity';
       host: 'localhost',
       port: 5432,
       username: 'mikitapilets',
-      password: 'твой_пароль_от_пользователя',
+      password: 'Karlson242424!',
       database: 'ai-notes',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [Note],
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Note]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
+  controllers: [NotesController],
+  providers: [NotesService],
 })
 export class AppModule {}
