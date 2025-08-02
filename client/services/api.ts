@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const API_URL = 'http://<YOUR_LOCAL_IP>:3000'; // заменим позже
+const api = axios.create({
+  baseURL: 'http://localhost:3000',
+});
 
-export const submitNote = async (text: string) => {
-  const res = await axios.post(`${API_URL}/notes`, {
-    originalText: text,
-  });
-  return res.data;
+export const generateSummary = async (text: string): Promise<string> => {
+  const response = await api.post('/notes/summary', { text });
+  return response.data.summary;
 };
