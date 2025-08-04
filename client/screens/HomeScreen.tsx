@@ -22,15 +22,26 @@ export default function HomeScreen() {
     }
   };
 
+  const generateTitle = () => {
+    const now = new Date();
+    const day = now.getDate().toString().padStart(2, '0');
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const year = now.getFullYear();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `Note ${day}/${month}/${year} ${hours}.${minutes}`;
+  };
+
   const createNote = async () => {
     if (!input.trim()) return;
 
     try {
-      const response = await api.post('/notes', {
-        title: input,
+      const newNote = {
+        title: generateTitle(),
         content: input,
-      });
+      };
 
+      const response = await api.post('/notes', newNote);
       setNotes([response.data, ...notes]);
       setInput('');
     } catch (error) {
@@ -62,6 +73,7 @@ export default function HomeScreen() {
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <Card.Content>
+              <Text style={styles.noteTitle}>{item.title}</Text>
               <Text>{item.content}</Text>
             </Card.Content>
           </Card>
@@ -77,4 +89,5 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8 },
   button: { marginTop: 10, marginBottom: 20 },
   card: { marginBottom: 12 },
+  noteTitle: { fontWeight: 'bold', marginBottom: 4 },
 });
