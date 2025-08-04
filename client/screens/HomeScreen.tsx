@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, TextInput, StyleSheet } from 'react-native';
+import { View, FlatList, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Button, Card, Text, IconButton, Portal, Dialog, Paragraph } from 'react-native-paper';
 import api from '../services/api';
 
@@ -12,8 +12,13 @@ type Note = {
 export default function HomeScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [input, setInput] = useState('');
+
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
+
+  const [editDialogVisible, setEditDialogVisible] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [editedContent, setEditedContent] = useState('');
 
   const fetchNotes = async () => {
     try {
@@ -61,6 +66,29 @@ export default function HomeScreen() {
     }
   };
 
+  const openEditDialog = (note: Note) => {
+    setEditingNote(note);
+    setEditedContent(note.content);
+    setEditDialogVisible(true);
+  };
+
+  const handleEditSave = async () => {
+    if (!editingNote) return;
+
+    try {
+      const response = await api.put(`/notes/${editingNote.id}`, {
+        content: editedContent,
+      });
+
+      setNotes(notes.map((n) => (n.id === editingNote.id ? response.data : n)));
+    } catch (error) {
+      console.error('Ошибка при редактировании заметки:', error);
+    } finally {
+      setEditDialogVisible(false);
+      setEditingNote(null);
+    }
+  };
+
   useEffect(() => {
     fetchNotes();
   }, []);
@@ -84,19 +112,21 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Card style={styles.card}>
-            <Card.Title
-              title={item.title}
-              right={(props) => (
-                <IconButton
-                  {...props}
-                  icon="delete"
-                  onPress={() => confirmDelete(item.id)}
-                />
-              )}
-            />
-            <Card.Content>
-              <Text>{item.content}</Text>
-            </Card.Content>
+            <TouchableOpacity onPress={() => openEditDialog(item)}>
+              <Card.Title
+                title={item.title}
+                right={(props) => (
+                  <IconButton
+                    {...props}
+                    icon="delete"
+                    onPress={() => confirmDelete(item.id)}
+                  />
+                )}
+              />
+              <Card.Content>
+                <Text>{item.content}</Text>
+              </Card.Content>
+            </TouchableOpacity>
           </Card>
         )}
       />
@@ -110,6 +140,24 @@ export default function HomeScreen() {
           <Dialog.Actions>
             <Button onPress={() => setDialogVisible(false)}>Отмена</Button>
             <Button onPress={handleDelete}>Удалить</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      <Portal>
+        <Dialog visible={editDialogVisible} onDismiss={() => setEditDialogVisible(false)}>
+          <Dialog.Title>Редактировать заметку</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              value={editedContent}
+              onChangeText={setEditedContent}
+              style={styles.input}
+              multiline
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setEditDialogVisible(false)}>Отмена</Button>
+            <Button onPress={handleEditSave}>Сохранить</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
