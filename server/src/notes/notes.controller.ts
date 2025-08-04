@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
 import { NotesService } from './notes.service';
-import { Note } from '../note.entity';
+import { Note } from './note.entity';
 
 @Controller('notes')
 export class NotesController {

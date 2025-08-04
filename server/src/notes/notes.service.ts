@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Note } from '../note.entity';
+import { Note } from './note.entity';
 
 @Injectable()
 export class NotesService {
@@ -9,6 +9,11 @@ export class NotesService {
     @InjectRepository(Note)
     private notesRepo: Repository<Note>,
   ) {}
+
+  private notes = [
+    { id: 1, title: 'Первая заметка', content: 'Текст заметки 1' },
+    { id: 2, title: 'Вторая заметка', content: 'Текст заметки 2' },
+  ];
 
   findAll() {
     return this.notesRepo.find();

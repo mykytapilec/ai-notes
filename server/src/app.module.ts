@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Note } from './note.entity';
-import { NotesService } from './notes/notes.service';
-import { NotesController } from './notes/notes.controller';
 import { ConfigModule } from '@nestjs/config';
+import { Note } from './notes/note.entity';
+import { NotesModule } from './notes/notes.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -17,12 +17,7 @@ import { ConfigModule } from '@nestjs/config';
       entities: [Note],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Note]),
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    NotesModule,
   ],
-  controllers: [NotesController],
-  providers: [NotesService],
 })
 export class AppModule {}

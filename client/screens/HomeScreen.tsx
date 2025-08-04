@@ -4,8 +4,9 @@ import { Button, Card, Text } from 'react-native-paper';
 import api from '../services/api';
 
 type Note = {
-  _id: string;
-  text: string;
+  id: number;
+  title: string;
+  content: string;
 };
 
 export default function HomeScreen() {
@@ -25,7 +26,11 @@ export default function HomeScreen() {
     if (!input.trim()) return;
 
     try {
-      const response = await api.post('/notes', { prompt: input });
+      const response = await api.post('/notes', {
+        title: input,
+        content: input,
+      });
+
       setNotes([response.data, ...notes]);
       setInput('');
     } catch (error) {
@@ -53,11 +58,11 @@ export default function HomeScreen() {
 
       <FlatList
         data={notes}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Card style={styles.card}>
             <Card.Content>
-              <Text>{item.text}</Text>
+              <Text>{item.content}</Text>
             </Card.Content>
           </Card>
         )}

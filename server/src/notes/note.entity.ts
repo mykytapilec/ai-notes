@@ -8,6 +8,6 @@ export class Note {
   @Column()
   title: string;
 
-  @Column({ nullable: true })
+  @Column()
   content: string;
 }
