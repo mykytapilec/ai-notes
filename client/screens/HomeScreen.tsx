@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, TextInput, StyleSheet } from 'react-native';
-import { Button, Card, Text } from 'react-native-paper';
+import { Button, Card, Text, IconButton, Portal, Dialog, Paragraph } from 'react-native-paper';
 import api from '../services/api';
 
 type Note = {
@@ -12,6 +12,8 @@ type Note = {
 export default function HomeScreen() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [input, setInput] = useState('');
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
 
   const fetchNotes = async () => {
     try {
@@ -22,30 +24,40 @@ export default function HomeScreen() {
     }
   };
 
-  const generateTitle = () => {
-    const now = new Date();
-    const day = now.getDate().toString().padStart(2, '0');
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    return `Note ${day}/${month}/${year} ${hours}.${minutes}`;
-  };
-
   const createNote = async () => {
     if (!input.trim()) return;
 
-    try {
-      const newNote = {
-        title: generateTitle(),
-        content: input,
-      };
+    const now = new Date();
+    const formattedTitle = `Note ${now.toLocaleDateString('en-GB')} ${now.getHours()}.${now.getMinutes()}`;
 
-      const response = await api.post('/notes', newNote);
+    try {
+      const response = await api.post('/notes', {
+        title: formattedTitle,
+        content: input,
+      });
       setNotes([response.data, ...notes]);
       setInput('');
     } catch (error) {
       console.error('Ошибка при создании заметки:', error);
+    }
+  };
+
+  const confirmDelete = (id: number) => {
+    setSelectedNoteId(id);
+    setDialogVisible(true);
+  };
+
+  const handleDelete = async () => {
+    if (selectedNoteId === null) return;
+
+    try {
+      await api.delete(`/notes/${selectedNoteId}`);
+      setNotes(notes.filter((note) => note.id !== selectedNoteId));
+    } catch (error) {
+      console.error('Ошибка при удалении заметки:', error);
+    } finally {
+      setDialogVisible(false);
+      setSelectedNoteId(null);
     }
   };
 
@@ -72,13 +84,35 @@ export default function HomeScreen() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <Card style={styles.card}>
+            <Card.Title
+              title={item.title}
+              right={(props) => (
+                <IconButton
+                  {...props}
+                  icon="delete"
+                  onPress={() => confirmDelete(item.id)}
+                />
+              )}
+            />
             <Card.Content>
-              <Text style={styles.noteTitle}>{item.title}</Text>
               <Text>{item.content}</Text>
             </Card.Content>
           </Card>
         )}
       />
+
+      <Portal>
+        <Dialog visible={dialogVisible} onDismiss={() => setDialogVisible(false)}>
+          <Dialog.Title>Удалить заметку</Dialog.Title>
+          <Dialog.Content>
+            <Paragraph>Вы уверены, что хотите удалить эту заметку?</Paragraph>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDialogVisible(false)}>Отмена</Button>
+            <Button onPress={handleDelete}>Удалить</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
@@ -89,5 +123,4 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8 },
   button: { marginTop: 10, marginBottom: 20 },
   card: { marginBottom: 12 },
-  noteTitle: { fontWeight: 'bold', marginBottom: 4 },
 });
