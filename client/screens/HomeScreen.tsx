@@ -1,108 +1,83 @@
-import React, { useMemo, useState } from 'react';
-import { View, TextInput, FlatList, StyleSheet } from 'react-native';
-import { Text, Button } from 'react-native-paper';
-import useNotes from '../hooks/useNotes';
+import React, { useEffect, useState } from 'react';
+import { View, FlatList, TextInput, StyleSheet, Alert } from 'react-native';
+import { Button, Text } from 'react-native-paper';
+import api from '../services/api';
 import NoteCard from '../components/NoteCard';
-import EditNoteDialog from '../components/EditNoteDialog';
-import FilterSortControls from '../components/FilterSortControls';
+
+type Note = {
+  _id: string;
+  text: string;
+};
 
 export default function HomeScreen() {
-  const { notes, createNote, deleteNote, updateNote } = useNotes();
+  const [notes, setNotes] = useState<Note[]>([]);
   const [input, setInput] = useState('');
-  const [filterText, setFilterText] = useState('');
-  const [sortKey, setSortKey] = useState<'date' | 'title'>('date');
-  const [sortAsc, setSortAsc] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [dialogVisible, setDialogVisible] = useState(false);
-  const [editNoteId, setEditNoteId] = useState<number | null>(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editContent, setEditContent] = useState('');
-
-  const filteredNotes = useMemo(() => {
-    let list = notes;
-    if (filterText.trim()) {
-      const t = filterText.toLowerCase();
-      list = list.filter(n =>
-        n.title.toLowerCase().includes(t) ||
-        n.content.toLowerCase().includes(t) ||
-        n.createdAt.toLowerCase().includes(t),
-      );
+  const fetchNotes = async () => {
+    try {
+      const response = await api.get('/notes');
+      setNotes(response.data);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
     }
+  };
 
-    return list.sort((a, b) => {
-      if (sortKey === 'date') {
-        return sortAsc
-          ? new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-      return sortAsc
-        ? a.title.localeCompare(b.title)
-        : b.title.localeCompare(a.title);
-    });
-  }, [notes, filterText, sortKey, sortAsc]);
-
-  const handleCreate = () => {
+  const createNote = async () => {
     if (!input.trim()) return;
-    createNote(input.trim());
-    setInput('');
+    setLoading(true);
+    try {
+      const response = await api.post('/notes', { content: input });
+      setNotes([response.data, ...notes]);
+      setInput('');
+    } catch (error) {
+      console.error('Error creating note:', error);
+      Alert.alert('Error', 'Failed to create note');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEdit = (note: any) => {
-    setEditNoteId(note.id);
-    setEditTitle(note.title);
-    setEditContent(note.content);
-    setDialogVisible(true);
+  const deleteNote = async (id: string) => {
+    try {
+      await api.delete(`/notes/${id}`);
+      setNotes((prev) => prev.filter((note) => note._id !== id));
+    } catch (error) {
+      console.error('Error deleting note:', error);
+    }
   };
 
-  const saveEdit = () => {
-    if (!editNoteId) return;
-    updateNote(editNoteId, { title: editTitle, content: editContent });
-    setDialogVisible(false);
-    setEditNoteId(null);
-  };
+  useEffect(() => {
+    fetchNotes();
+  }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>AI Notes</Text>
       <TextInput
         style={styles.input}
-        placeholder="Введите идею..."
+        placeholder="Enter an idea..."
         value={input}
         onChangeText={setInput}
       />
-      <Button mode="contained" onPress={handleCreate} style={styles.button}>
-        Создать заметку
+      <Button
+        mode="contained"
+        onPress={createNote}
+        loading={loading}
+        style={styles.button}
+        disabled={!input.trim()}
+      >
+        Create Note
       </Button>
-
-      <FilterSortControls
-        filterText={filterText}
-        onChangeFilter={setFilterText}
-        sortKey={sortKey}
-        sortAsc={sortAsc}
-        onChangeSortKey={setSortKey}
-        onToggleSortOrder={() => setSortAsc(!sortAsc)}
-      />
-
       <FlatList
-        data={filteredNotes}
-        keyExtractor={(item) => item.id.toString()}
+        data={notes}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <NoteCard
-            note={item}
-            onDelete={deleteNote}
-            onEdit={handleEdit}
+            text={item.text}
+            onDelete={() => deleteNote(item._id)}
           />
         )}
-      />
-
-      <EditNoteDialog
-        visible={dialogVisible}
-        title={editTitle}
-        content={editContent}
-        onDismiss={() => setDialogVisible(false)}
-        onSave={saveEdit}
-        setTitle={setEditTitle}
-        setContent={setEditContent}
       />
     </View>
   );

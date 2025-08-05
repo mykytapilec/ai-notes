@@ -1,27 +1,35 @@
 import React from 'react';
-import { Card, IconButton, Text } from 'react-native-paper';
-import { Note } from '../types';
-
+import { Card, IconButton } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 
 type Props = {
-  note: Note;
-  onDelete: (id: number) => void;
-  onEdit: (note: Note) => void;
+  text: string;
+  onDelete?: () => void;
+  onEdit?: () => void;
 };
 
-export default function NoteCard({ note, onDelete, onEdit }: Props) {
+export default function NoteCard({ text, onDelete, onEdit }: Props) {
   return (
-    <Card style={{ marginBottom: 12 }} onPress={() => onEdit(note)}>
+    <Card style={styles.card}>
       <Card.Title
-        title={note.title}
-        subtitle={new Date(note.createdAt).toLocaleString()}
-        right={() => (
-          <IconButton icon="delete" onPress={() => onDelete(note.id)} />
+        title={text}
+        right={(props) => (
+          <>
+            {onEdit && (
+              <IconButton {...props} icon="pencil" onPress={onEdit} />
+            )}
+            {onDelete && (
+              <IconButton {...props} icon="delete" onPress={onDelete} />
+            )}
+          </>
         )}
       />
-      <Card.Content>
-        <Text>{note.content}</Text>
-      </Card.Content>
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    marginBottom: 12,
+  },
+});

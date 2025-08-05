@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotesModule } from './notes/notes.module';
 import { Note } from './notes/note.entity';
 import { envFilePath } from './constants';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { envFilePath } from './constants';
     synchronize: true,
   }),
     NotesModule,
+    AiModule,
   ],
 })
 export class AppModule {}
