@@ -1,18 +1,19 @@
 import React from 'react';
-import { Card, IconButton } from 'react-native-paper';
+import { Card, IconButton, Text } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 
 type Props = {
-  text: string;
+  title: string;
+  content: string;
   onDelete?: () => void;
   onEdit?: () => void;
 };
 
-export default function NoteCard({ text, onDelete, onEdit }: Props) {
+export default function NoteCard({ title, content, onDelete, onEdit }: Props) {
   return (
     <Card style={styles.card}>
       <Card.Title
-        title={text}
+        title={title}
         right={(props) => (
           <>
             {onEdit && (
@@ -24,6 +25,9 @@ export default function NoteCard({ text, onDelete, onEdit }: Props) {
           </>
         )}
       />
+      <Card.Content>
+        <Text>{content}</Text>
+      </Card.Content>
     </Card>
   );
 }
