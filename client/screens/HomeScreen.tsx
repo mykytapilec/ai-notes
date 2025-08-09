@@ -72,7 +72,7 @@ export default function HomeScreen() {
     if (!editingNote) return;
 
     try {
-      const response = await api.patch(`/notes/${editingNote.id}`, {
+      const response = await api.put(`/notes/${editingNote.id}`, {
         title: editTitle,
         content: editContent,
       });

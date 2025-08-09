@@ -1,6 +1,6 @@
 import React from 'react';
-import { TextInput, StyleSheet } from 'react-native';
-import { Button, Dialog, Portal } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { Button, Dialog, Portal, TextInput as PaperInput } from 'react-native-paper';
 
 type Props = {
   visible: boolean;
@@ -23,26 +23,54 @@ export default function EditNoteDialog({
 }: Props) {
   return (
     <Portal>
-      <Dialog visible={visible} onDismiss={onDismiss}>
-        <Dialog.Title>Редактировать заметку</Dialog.Title>
+      <Dialog
+        visible={visible}
+        onDismiss={onDismiss}
+        style={styles.dialog}
+      >
+        <Dialog.Title style={styles.dialogTitle}>Редактировать заметку</Dialog.Title>
         <Dialog.Content>
-          <TextInput
-            style={styles.input}
+          <PaperInput
+            mode="outlined"
             value={title}
             onChangeText={setTitle}
             placeholder="Заголовок"
+            placeholderTextColor="#aaa"
+            theme={{
+              colors: {
+                text: '#fff',
+                placeholder: '#aaa',
+                primary: '#fff',
+                background: '#1e1e1e',
+              },
+            }}
+            style={styles.input}
           />
-          <TextInput
-            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
+          <PaperInput
+            mode="outlined"
             value={content}
             onChangeText={setContent}
             placeholder="Содержимое"
+            placeholderTextColor="#aaa"
             multiline
+            theme={{
+              colors: {
+                text: '#fff',
+                placeholder: '#aaa',
+                primary: '#fff',
+                background: '#1e1e1e',
+              },
+            }}
+            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
           />
         </Dialog.Content>
         <Dialog.Actions>
-          <Button onPress={onDismiss}>Отмена</Button>
-          <Button onPress={onSave}>Сохранить</Button>
+          <Button onPress={onDismiss} textColor="#ccc">
+            Отмена
+          </Button>
+          <Button onPress={onSave} textColor="#fff">
+            Сохранить
+          </Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>
@@ -50,7 +78,14 @@ export default function EditNoteDialog({
 }
 
 const styles = StyleSheet.create({
+  dialog: {
+    backgroundColor: '#1e1e1e',
+  },
+  dialogTitle: {
+    color: '#fff',
+  },
   input: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8, marginBottom: 10,
+    marginBottom: 10,
+    backgroundColor: '#1e1e1e',
   },
 });
