@@ -23,7 +23,7 @@ export default function FilterSortControls({
     <View>
       <TextInput
         style={styles.input}
-        placeholder="Фильтр по тексту или дате"
+        placeholder="Filter notes..."
         value={filterText}
         onChangeText={onChangeFilter}
       />
@@ -34,14 +34,14 @@ export default function FilterSortControls({
           onPress={() => onChangeSortKey('date')}
           style={styles.sortButton}
         >
-          По дате
+          By date
         </Button>
         <Button
           mode={sortKey === 'title' ? 'contained' : 'outlined'}
           onPress={() => onChangeSortKey('title')}
           style={styles.sortButton}
         >
-          По заголовку
+          By title
         </Button>
         <Button onPress={onToggleSortOrder} style={styles.sortButton}>
           {sortAsc ? '▲' : '▼'}

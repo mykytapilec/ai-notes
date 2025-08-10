@@ -28,7 +28,7 @@ export default function EditNoteDialog({
         onDismiss={onDismiss}
         style={styles.dialog}
       >
-        <Dialog.Title style={styles.dialogTitle}>Редактировать заметку</Dialog.Title>
+        <Dialog.Title style={styles.dialogTitle}>Edit note</Dialog.Title>
         <Dialog.Content>
           <PaperInput
             mode="outlined"
@@ -50,7 +50,7 @@ export default function EditNoteDialog({
             mode="outlined"
             value={content}
             onChangeText={setContent}
-            placeholder="Содержимое"
+            placeholder="Content"
             placeholderTextColor="#aaa"
             multiline
             theme={{
@@ -66,10 +66,10 @@ export default function EditNoteDialog({
         </Dialog.Content>
         <Dialog.Actions>
           <Button onPress={onDismiss} textColor="#ccc">
-            Отмена
+            Cancel
           </Button>
           <Button onPress={onSave} textColor="#fff">
-            Сохранить
+            Save
           </Button>
         </Dialog.Actions>
       </Dialog>
