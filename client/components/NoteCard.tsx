@@ -14,15 +14,16 @@ export default function NoteCard({ title, content, onDelete, onEdit }: Props) {
     <Card style={styles.card}>
       <Card.Title
         title={title}
+        style={styles.title}
         right={(props) => (
-          <>
+          <div style={styles.btnWrapper}>
             {onEdit && (
-              <IconButton {...props} icon="pencil" onPress={onEdit} />
+              <IconButton {...props} style={styles.icon} icon="pencil" onPress={onEdit} />
             )}
             {onDelete && (
-              <IconButton {...props} icon="delete" onPress={onDelete} />
+              <IconButton {...props} style={styles.icon} icon="delete" onPress={onDelete} />
             )}
-          </>
+          </div>
         )}
       />
       <Card.Content>
@@ -35,5 +36,20 @@ export default function NoteCard({ title, content, onDelete, onEdit }: Props) {
 const styles = StyleSheet.create({
   card: {
     marginBottom: 12,
+  },
+  title: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 48,
+  },
+  btnWrapper: {
+    display: 'flex',
+  },
+  icon: {
+    margin: 0,
+    padding: 0,
+    width: 36,
+    height: 36,
   },
 });
