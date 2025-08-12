@@ -125,6 +125,7 @@ export default function HomeScreen() {
         mode="contained"
         onPress={createNote}
         loading={loading}
+        textColor="#fff"
         style={styles.button}
         disabled={!input.trim()}
       >
@@ -172,5 +173,5 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 8,
   },
-  button: { marginTop: 10, marginBottom: 20 },
+  button: { marginTop: 10, marginBottom: 20, backgroundColor: "#1e88e5" },
 });
