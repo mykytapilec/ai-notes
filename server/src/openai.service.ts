@@ -7,7 +7,8 @@ export class OpenAIService {
 
   constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.GITHUB_TOKEN || "",
+      baseURL: process.env.OPENAI_API_BASE_URL || "",
     });
   }
 

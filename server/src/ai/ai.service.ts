@@ -1,41 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { OpenAI } from 'openai';
-
+import { Injectable, Logger } from '@nestjs/common';
+import OpenAI from 'openai';
 
 @Injectable()
 export class AiService {
+  private readonly logger = new Logger(AiService.name);
   private openai: OpenAI;
 
   constructor() {
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: process.env.GITHUB_TOKEN || '',
+      baseURL: process.env.OPENAI_API_BASE_URL || 'https://models.inference.ai.azure.com',
     });
   }
 
-  async generateTitle(text: string): Promise<string> {
+  async generateTitle(content: string): Promise<string> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
         messages: [
           {
+            role: 'system',
+            content: 'You are an assistant that generates short, concise titles for notes.',
+          },
+          {
             role: 'user',
-            content: `Generate a short title (max 5 words) for the following note: "${text}"`,
+            content: `Generate a short title for this note: ${content}`,
           },
         ],
-        temperature: 0.7,
         max_tokens: 20,
       });
 
-      const title = response.choices[0].message.content?.trim();
-      return title || this.fallbackTitle();
+      const title = response.choices[0]?.message?.content?.trim() || 'Untitled';
+      return title;
     } catch (error) {
-      console.error('OpenAI generateTitle error:', error);
-      return this.fallbackTitle();
+      this.logger.error(`OpenAI generateTitle error: ${error}`);
+      throw error;
     }
-  }
-
-  private fallbackTitle(): string {
-    const date = new Date();
-    return `Note ${date.toLocaleDateString()} ${date.toLocaleTimeString().slice(0, 5)}`;
   }
 }
