@@ -12,7 +12,6 @@ import { AiModule } from './ai/ai.module';
       isGlobal: true,
       envFilePath,
     }),
-
    TypeOrmModule.forRoot({
     type: process.env.DB_TYPE as 'postgres',
     host: process.env.DB_HOST,

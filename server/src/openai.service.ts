@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import OpenAI from "openai";
+import { role } from "./constants";
 
 @Injectable()
 export class OpenAIService {
@@ -14,8 +15,8 @@ export class OpenAIService {
 
   async generateSummary(text: string): Promise<string> {
     const completion = await this.openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: `Summarize this note: ${text}` }],
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      messages: [{ role, content: `Summarize this note: ${text}` }],
     });
 
     return completion.choices[0].message?.content ?? "";
